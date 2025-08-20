@@ -46,6 +46,8 @@ class Paint(arcade.View):
         self.sidebar_x = WIDTH - SIDEBAR_WIDTH
         self.buttons = []
         self._create_buttons()
+        self.mouse_x = None
+        self.mouse_y = None
 
     def _create_buttons(self):
         x = self.sidebar_x + PADDING
@@ -85,10 +87,21 @@ class Paint(arcade.View):
                 arcade.draw_polygon_filled(inner, val)
                 if val == self.color:
                     arcade.draw_polygon_outline(pts, arcade.color.BLACK, 3)
+        if self.tool.name == "ERASER" and self.mouse_x is not None and self.mouse_y is not None:
+            try:
+                arcade.draw_circle_outline(self.mouse_x, self.mouse_y, 20, arcade.color.BLACK, 2)
+            except Exception:
+                pass
         arcade.draw_text("Herramientas", self.sidebar_x + PADDING, HEIGHT - PADDING - 16, arcade.color.BLACK, 14)
         arcade.draw_text("Presiona O para guardar", self.sidebar_x + PADDING, 8, arcade.color.DARK_SLATE_GRAY, 12)
 
+    def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
+        self.mouse_x = x
+        self.mouse_y = y
+
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
+        self.mouse_x = x
+        self.mouse_y = y
         if x >= self.sidebar_x:
             for kind, val, rect in self.buttons:
                 rx, ry, rw, rh = rect
@@ -119,6 +132,8 @@ class Paint(arcade.View):
                 self.used_tools[self.tool.name] = self.tool
 
     def on_mouse_drag(self, x: int, y: int, dx: int, dy: int, buttons: int, modifiers: int):
+        self.mouse_x = x
+        self.mouse_y = y
         if x >= self.sidebar_x:
             return
         if not self.traces:
@@ -129,10 +144,20 @@ class Paint(arcade.View):
             self.erase_at(x, y, radius=20)
             return
         last = self.traces[-1]
-        if last["tool"] != self.tool.name:
+        if self.tool.name == "SPRAY":
+            spray_points = self.tool.make_spray_points(x, y)
+            if last["tool"] == "SPRAY":
+                last["trace"].extend(spray_points)
+            else:
+                self.traces.append({"tool": "SPRAY", "color": self.color, "trace": spray_points})
+        elif last["tool"] != self.tool.name:
             self.traces.append({"tool": self.tool.name, "color": self.color, "trace": [(x, y)]})
         else:
             last["trace"].append((x, y))
+
+    def on_mouse_release(self, x: int, y: int, button: int, modifiers: int):
+        self.mouse_x = x
+        self.mouse_y = y
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.KEY_1:
@@ -176,17 +201,35 @@ class Paint(arcade.View):
             print("Error guardando dibujo:", e)
 
     def erase_at(self, x: int, y: int, radius: int = 20):
+        r = radius
+        if hasattr(self, "tool") and getattr(self.tool, "name", "") == "MARKER":
+            r = int(radius * 1.8)
+        rx2 = r * r
         remaining = []
-        rx2 = radius * radius
         for t in self.traces:
-            new_points = []
-            for px, py in t.get("trace", []):
+            pts = t.get("trace", [])
+            segments = []
+            current = []
+            for px, py in pts:
                 dx = px - x
                 dy = py - y
                 if dx * dx + dy * dy > rx2:
-                    new_points.append((px, py))
-            if len(new_points) >= 2:
-                remaining.append({"tool": t["tool"], "color": t["color"], "trace": new_points})
+                    current.append((px, py))
+                else:
+                    if len(current) >= 2:
+                        segments.append(current)
+                    elif len(current) == 1:
+                        segments.append(current)
+                    current = []
+            if len(current) >= 2:
+                segments.append(current)
+            elif len(current) == 1:
+                segments.append(current)
+            for seg in segments:
+                if len(seg) == 1:
+                    remaining.append({"tool": t["tool"], "color": t["color"], "trace": seg})
+                else:
+                    remaining.append({"tool": t["tool"], "color": t["color"], "trace": seg})
         self.traces = remaining
 
 if __name__ == "__main__":
