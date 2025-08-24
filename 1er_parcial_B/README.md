@@ -63,9 +63,22 @@ La interfaz de la aplicación incluye:
 1 → Seleccionar Pencil  
 2 → Seleccionar Marker  
 3 → Seleccionar Spray  
-4 → Seleccionar Eraser   
+4 → Seleccionar Eraser  
+
 O → Guardar dibujo (se puede ingresar un nombre)  
 L → Cargar dibujo desde un archivo JSON  
+
+A → Color Negro  
+S → Color Rojo  
+D → Color Azul  
+F → Color Verde  
+G → Color Amarillo  
+H → Color Naranja  
+J → Color Morado  
+K → Color Marrón  
+Q → Color Cyan  
+W → Color Magenta
+
 
 ## Guardar y cargar
 
