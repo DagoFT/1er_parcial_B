@@ -3,6 +3,8 @@ import sys
 import json
 import time
 import os
+import tkinter as tk
+from tkinter import filedialog
 from tool import PencilTool, MarkerTool, SprayTool, EraserTool
 
 WIDTH = 960
@@ -19,6 +21,10 @@ COLOR_SWATCHES = [
     arcade.color.GREEN,
     arcade.color.YELLOW,
     arcade.color.ORANGE,
+    arcade.color.PURPLE,
+    arcade.color.BROWN,
+    arcade.color.CYAN,
+    arcade.color.MAGENTA,
 ]
 
 def _rect_points(x, y, w, h):
@@ -36,11 +42,11 @@ class Paint(arcade.View):
             try:
                 with open(load_path, "r", encoding="utf-8") as f:
                     raw = json.load(f)
-                self.traces = [{
+                self.traces = [ {
                     "tool": t["tool"],
                     "color": tuple(t["color"]) if isinstance(t.get("color"), list) else t.get("color"),
                     "trace": [tuple(p) for p in t.get("trace", [])]
-                } for t in raw]
+                } for t in raw ]
             except Exception:
                 self.traces = []
         self.sidebar_x = WIDTH - SIDEBAR_WIDTH
@@ -51,7 +57,7 @@ class Paint(arcade.View):
 
     def _create_buttons(self):
         x = self.sidebar_x + PADDING
-        y = HEIGHT - PADDING - BUTTON_HEIGHT
+        y = HEIGHT - PADDING - BUTTON_HEIGHT - 40
         for name in TOOLS:
             rect = (x, y, SIDEBAR_WIDTH - 2 * PADDING, BUTTON_HEIGHT)
             self.buttons.append(("tool", name, rect))
@@ -73,6 +79,7 @@ class Paint(arcade.View):
         bottom = 0
         sidebar = [(left, bottom), (right, bottom), (right, top), (left, top)]
         arcade.draw_polygon_filled(sidebar, arcade.color.LIGHT_GRAY)
+        arcade.draw_text("Herramientas", self.sidebar_x + PADDING, HEIGHT - PADDING - 16, arcade.color.BLACK, 14)
         for kind, val, rect in self.buttons:
             x, y, w, h = rect
             pts = _rect_points(x, y, w, h)
@@ -92,8 +99,8 @@ class Paint(arcade.View):
                 arcade.draw_circle_outline(self.mouse_x, self.mouse_y, 20, arcade.color.BLACK, 2)
             except Exception:
                 pass
-        arcade.draw_text("Herramientas", self.sidebar_x + PADDING, HEIGHT - PADDING - 16, arcade.color.BLACK, 14)
-        arcade.draw_text("Presiona O para guardar", self.sidebar_x + PADDING, 8, arcade.color.DARK_SLATE_GRAY, 12)
+        arcade.draw_text("Presiona O para guardar", self.sidebar_x + PADDING, 32, arcade.color.DARK_SLATE_GRAY, 12)
+        arcade.draw_text("Presiona L para cargar", self.sidebar_x + PADDING, 8, arcade.color.DARK_SLATE_GRAY, 12)
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
         self.mouse_x = x
@@ -178,10 +185,21 @@ class Paint(arcade.View):
             self.color = COLOR_SWATCHES[3]
         elif symbol == arcade.key.O:
             self.save_traces()
+        elif symbol == arcade.key.L:
+            self.load_traces()
         self.used_tools[self.tool.name] = self.tool
 
     def save_traces(self):
         try:
+            root = tk.Tk()
+            root.withdraw()
+            filename = filedialog.asksaveasfilename(
+                title="Guardar dibujo",
+                defaultextension=".json",
+                filetypes=[("Archivos JSON", "*.json")]
+            )
+            if not filename:
+                return
             serializable = []
             for t in self.traces:
                 color = t["color"]
@@ -192,13 +210,32 @@ class Paint(arcade.View):
                     "color": color,
                     "trace": [[int(p[0]), int(p[1])] for p in t["trace"]]
                 })
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            filename = f"drawing_{timestamp}.json"
             with open(filename, "w", encoding="utf-8") as f:
                 json.dump(serializable, f, indent=2)
             print(f"Dibujo guardado en {filename}")
         except Exception as e:
             print("Error guardando dibujo:", e)
+
+    def load_traces(self):
+        root = tk.Tk()
+        root.withdraw()
+        filename = filedialog.askopenfilename(
+            title="Seleccionar dibujo",
+            filetypes=[("Archivos JSON", "*.json")]
+        )
+        if not filename:
+            return
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+            self.traces = [{
+                "tool": t["tool"],
+                "color": tuple(t["color"]) if isinstance(t.get("color"), list) else t.get("color"),
+                "trace": [tuple(p) for p in t.get("trace", [])]
+            } for t in raw]
+            print(f"Dibujo cargado desde {filename}")
+        except Exception as e:
+            print("Error cargando dibujo:", e)
 
     def erase_at(self, x: int, y: int, radius: int = 20):
         r = radius
@@ -226,10 +263,7 @@ class Paint(arcade.View):
             elif len(current) == 1:
                 segments.append(current)
             for seg in segments:
-                if len(seg) == 1:
-                    remaining.append({"tool": t["tool"], "color": t["color"], "trace": seg})
-                else:
-                    remaining.append({"tool": t["tool"], "color": t["color"], "trace": seg})
+                remaining.append({"tool": t["tool"], "color": t["color"], "trace": seg})
         self.traces = remaining
 
 if __name__ == "__main__":
