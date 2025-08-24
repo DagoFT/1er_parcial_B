@@ -1,7 +1,6 @@
 import arcade
 import sys
 import json
-import time
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -27,6 +26,19 @@ COLOR_SWATCHES = [
     arcade.color.MAGENTA,
 ]
 
+COLOR_SHORTCUTS = {
+    arcade.key.A: COLOR_SWATCHES[0],
+    arcade.key.S: COLOR_SWATCHES[1],
+    arcade.key.D: COLOR_SWATCHES[2],
+    arcade.key.F: COLOR_SWATCHES[3],
+    arcade.key.G: COLOR_SWATCHES[4],
+    arcade.key.H: COLOR_SWATCHES[5],
+    arcade.key.J: COLOR_SWATCHES[6],
+    arcade.key.K: COLOR_SWATCHES[7],
+    arcade.key.Q: COLOR_SWATCHES[8],
+    arcade.key.W: COLOR_SWATCHES[9],
+}
+
 def _rect_points(x, y, w, h):
     return [(x, y), (x + w, y), (x + w, y + h), (x, y + h)]
 
@@ -42,11 +54,13 @@ class Paint(arcade.View):
             try:
                 with open(load_path, "r", encoding="utf-8") as f:
                     raw = json.load(f)
-                self.traces = [ {
-                    "tool": t["tool"],
-                    "color": tuple(t["color"]) if isinstance(t.get("color"), list) else t.get("color"),
-                    "trace": [tuple(p) for p in t.get("trace", [])]
-                } for t in raw ]
+                self.traces = [
+                    {
+                        "tool": t["tool"],
+                        "color": tuple(t["color"]) if isinstance(t.get("color"), list) else t.get("color"),
+                        "trace": [tuple(p) for p in t.get("trace", [])]
+                    } for t in raw
+                ]
             except Exception:
                 self.traces = []
         self.sidebar_x = WIDTH - SIDEBAR_WIDTH
@@ -175,14 +189,8 @@ class Paint(arcade.View):
             self.tool = SprayTool()
         elif symbol == arcade.key.KEY_4:
             self.tool = EraserTool()
-        elif symbol == arcade.key.A:
-            self.color = COLOR_SWATCHES[0]
-        elif symbol == arcade.key.S:
-            self.color = COLOR_SWATCHES[1]
-        elif symbol == arcade.key.D:
-            self.color = COLOR_SWATCHES[2]
-        elif symbol == arcade.key.F:
-            self.color = COLOR_SWATCHES[3]
+        elif symbol in COLOR_SHORTCUTS:
+            self.color = COLOR_SHORTCUTS[symbol]
         elif symbol == arcade.key.O:
             self.save_traces()
         elif symbol == arcade.key.L:
@@ -212,7 +220,6 @@ class Paint(arcade.View):
                 })
             with open(filename, "w", encoding="utf-8") as f:
                 json.dump(serializable, f, indent=2)
-            print(f"Dibujo guardado en {filename}")
         except Exception as e:
             print("Error guardando dibujo:", e)
 
@@ -228,12 +235,13 @@ class Paint(arcade.View):
         try:
             with open(filename, "r", encoding="utf-8") as f:
                 raw = json.load(f)
-            self.traces = [{
-                "tool": t["tool"],
-                "color": tuple(t["color"]) if isinstance(t.get("color"), list) else t.get("color"),
-                "trace": [tuple(p) for p in t.get("trace", [])]
-            } for t in raw]
-            print(f"Dibujo cargado desde {filename}")
+            self.traces = [
+                {
+                    "tool": t["tool"],
+                    "color": tuple(t["color"]) if isinstance(t.get("color"), list) else t.get("color"),
+                    "trace": [tuple(p) for p in t.get("trace", [])]
+                } for t in raw
+            ]
         except Exception as e:
             print("Error cargando dibujo:", e)
 
