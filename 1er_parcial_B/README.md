@@ -5,6 +5,7 @@ Este proyecto es una aplicación de dibujo tipo Paint desarrollada en Python usa
 ## Estructura de archivos
 
 project/
+
 ├─ main.py       Archivo principal con la lógica del programa y GUI  
 ├─ tool.py       Definición de herramientas (Pencil, Marker, Spray, Eraser)  
 └─ README.md     Este archivo  
@@ -62,8 +63,7 @@ La interfaz de la aplicación incluye:
 1 → Seleccionar Pencil  
 2 → Seleccionar Marker  
 3 → Seleccionar Spray  
-4 → Seleccionar Eraser  
-A, S, D, F → Cambiar entre colores predefinidos  
+4 → Seleccionar Eraser   
 O → Guardar dibujo (se puede ingresar un nombre)  
 L → Cargar dibujo desde un archivo JSON  
 
