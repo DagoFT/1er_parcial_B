@@ -1,62 +1,96 @@
-# Infografia - Universidad Privada Boliviana 1er parcial B
+# Paint App con Arcade
 
-## Descripción
+Este proyecto es una aplicación de dibujo tipo Paint desarrollada en Python usando la librería **Arcade**. Permite dibujar con diferentes herramientas, cambiar colores, borrar, y guardar/cargar dibujos en formato JSON.
 
-Este repositorio contiene el código base para el proyecto de tipo B.
+## Estructura de archivos
 
-Este proyecto implementa la funcionalidad base una versión inicial de PAINT. El proyecto contiene código para la mecánica fundamental y los objetos necesarios. Usted deberá completar el código fuente e implementar funcionalidades adicionales.
+project/
+├─ main.py       Archivo principal con la lógica del programa y GUI  
+├─ tool.py       Definición de herramientas (Pencil, Marker, Spray, Eraser)  
+└─ README.md     Este archivo  
 
-## Instrucciones
+## Requisitos
 
-Para ejecutar el programa de arcade:
+- Python 3.10 o superior  
+- Librerías de Python:
+  - arcade
+  - tkinter (incluido por defecto en Python)
+  - json (incluido por defecto en Python)
 
-1. Clone (o forkee) el repositorio en un directorio local.
-2. Abra la carpeta completa con Visual Studio code.
-3. Ejecute el archivo main.py.
+Instalación de Arcade:
 
-Siga las instrucciones para la implementación de la evaluación.
+pip install arcade
 
-### Implementación de características adicionales
+## Herramientas disponibles
 
-La aplicación cuenta con una herramienta de lápiz implementada. El mecanismo de funcionamiento está basado en un conjunto de trazos. El objeto self.traces es una lista de diccionarios, cada elemento representa un trazo a dibujar en la pantalla. Cada trazo tiene el siguiente formato como diccionario de python:
-```python
-{"tool": TOOL_NAME, "color": COLOR, "trace":[(x0, y0), (x1, y1), ... (xn, yn)]}
-```
-Usted deberá implementar las siguientes características como nuevas clases en el archivo `tool.py`:
+PENCIL: Dibujo fino con línea delgada  
+MARKER: Línea gruesa para trazos destacados  
+SPRAY: Efecto spray con dispersión de puntos  
+ERASER: Borrar partes del dibujo
 
-#### Marker Tool
+## Colores disponibles
 
-La herramienta de marcador funciona similar a la herramienta del lápiz, pero en este caso se cuenta con un grosor incrementado.
+Los colores iniciales disponibles en la barra lateral son:
 
-#### Spray Tool
+Negro  
+Rojo  
+Azul  
+Verde  
+Amarillo  
+Naranja  
+Rosa  
+Púrpura  
+Cian  
+Marrón  
+Gris  
+Lima  
 
-La herramienta de spray deberá pintar cierto número de pixeles alrededor del pixel en el que se hace clic.
+## Uso
 
-#### Eraser Tool
+Ejecutar el programa:
 
-La herramienta borrador, deberá eliminar los trazos que toca.
+python main.py
 
-#### Guardado y Carga de dibujos
+La interfaz de la aplicación incluye:
 
-Adicionalmente, usted deberá implementar una funcionalidad de Guardado y Carga de dibujos simplemente guardando el objeto `self.traces` en un archivo de texto.
-El guardado deberá realizarse al presionar la tecla `O` y la carga podrá realizarse a través de un argumento de línea de comandos.
-Para la carga deberá usar la siguiente forma de invocar el programa:
+- Barra lateral con herramientas y colores  
+- Área de dibujo principal  
+- Indicaciones de teclado para guardar y cargar  
 
-```bash
-python main.py ruta/a/mi/archivo
-```
+### Atajos de teclado
 
+1 → Seleccionar Pencil  
+2 → Seleccionar Marker  
+3 → Seleccionar Spray  
+4 → Seleccionar Eraser  
+A, S, D, F → Cambiar entre colores predefinidos  
+O → Guardar dibujo (se puede ingresar un nombre)  
+L → Cargar dibujo desde un archivo JSON  
 
-#### (Extra) Interfaz gráfica
+## Guardar y cargar
 
-Se considerará la implementación de una interfaz gráfica con botones para cambiar herramientas y colores y cualquier adición de funcionalidad al programa.
+Al presionar O, se abre un diálogo para ingresar el nombre del archivo y guardar el dibujo en formato JSON.  
+Al presionar L, se abre un diálogo para seleccionar un archivo JSON previamente guardado.  
 
-### Envío del código
+## Cómo agregar colores adicionales
 
-Usted deberá enviar un enlace a un repositorio de github que solamente contendrá el código del proyecto en cuestión. Se recomienda que, para salvar inconvenientes con GIT, usted realice un fork de este repositorio en su propia cuenta, y luego clone el fork a su directorio local. 
+Para añadir más colores, edita la lista COLOR_SWATCHES en main.py:
 
-Una vez finalizadas las tareas, se deberá enviar un email por grupo con los siguientes datos:
+COLOR_SWATCHES = [
+    arcade.color.BLACK,
+    arcade.color.RED,
+    arcade.color.BLUE,
+    arcade.color.GREEN,
+    arcade.color.YELLOW,
+    arcade.color.ORANGE,
+    arcade.color.PINK,
+    arcade.color.PURPLE,
+    arcade.color.CYAN,
+    arcade.color.BROWN,
+    arcade.color.GRAY,
+    arcade.color.LIME,
+]
 
- - Destinatario: eduardo.laruta+tareas@gmail.com
- - Asunto: 1era Evaluacion parcial Infografia
- - Contenido: Nombres y códigos de los integrantes y el enlace al repositorio de GitHub
+## Licencia
+
+Este proyecto es de uso educativo y libre distribución.
